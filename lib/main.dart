@@ -42,12 +42,21 @@ class DataProducts extends StatefulWidget {
 
 class _DataProductsState extends State<DataProducts> {
   List<Products> _products = [];
-  static String imagenURL = 'https://staticuestudio.blob.core.windows.net/buhomag/2016/03/01195417/pexels-com.jpg';
+  int totalCart = 0;
+  static String imagenURL =
+      'https://staticuestudio.blob.core.windows.net/buhomag/2016/03/01195417/pexels-com.jpg';
 
   @override
   void initState() {
     super.initState();
     _fetchProducts();
+  }
+
+  void _incrementCounter() {
+    setState(() {
+      totalCart++;
+    });
+    print("TOTAL: ${totalCart}");
   }
 
   Future<void> _fetchProducts() async {
@@ -61,56 +70,68 @@ class _DataProductsState extends State<DataProducts> {
 
   @override
   Widget build(BuildContext context) {
-    return 
-    _products.isEmpty ? const Center(
-      child: CircularProgressIndicator(),
-    )  :
-     ListView.builder(
-      itemCount: _products.length,
-      itemBuilder: (context, index) {
-        final product = _products[index];
-        return Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-            margin: const EdgeInsets.all(15),
-            elevation: 10,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    child: Text(product.title),
-                  ),
-                  FadeInImage(
-                    image: NetworkImage(
-                        product.image ?? imagenURL),
-                    placeholder: const AssetImage('assets/loading.gif'),
-                    fit: BoxFit.cover,
-                    height: 260,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Text("${product.price} Pesos",
-                        maxLines: 1,
-                        overflow: TextOverflow.clip,
-                        softWrap: false,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.amberAccent))),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    child: Text(product.description ?? 'Sin descripcion'),
-                  )
-                ],
-              ),
-            ));
-      },
-    );
+    return _products.isEmpty
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : ListView.builder(
+            itemCount: _products.length,
+            itemBuilder: (context, index) {
+              final product = _products[index];
+              return Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30)),
+                  margin: const EdgeInsets.all(15),
+                  elevation: 10,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(product.title),
+                        ),
+                        FadeInImage(
+                          image: NetworkImage(product.image ?? imagenURL),
+                          placeholder: const AssetImage('assets/loading.gif'),
+                          fit: BoxFit.cover,
+                          height: 260,
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Text("\$${product.price}",
+                                maxLines: 1,
+                                overflow: TextOverflow.clip,
+                                softWrap: false,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.purple))),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(product.description ?? 'Sin descripcion'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            _incrementCounter();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  "El producto se agrego al carrito: ${product.title}"),
+                            ));
+                          },
+                          child: const Text('Agregar al carrito'),
+                        ),
+                      ],
+                    ),
+                  ));
+            },
+          );
   }
 }
 
-class AppBarScreen extends StatelessWidget with PreferredSizeWidget {
+class AppBarScreen extends StatefulWidget with PreferredSizeWidget {
   @override
   final Size preferredSize;
 
@@ -119,11 +140,46 @@ class AppBarScreen extends StatelessWidget with PreferredSizeWidget {
         super(key: key);
 
   @override
+  State<AppBarScreen> createState() => _AppBarScreenState();
+}
+
+class _AppBarScreenState extends State<AppBarScreen> {
+  @override
   Widget build(BuildContext context) {
     return AppBar(
       title: const Text(
         'Lista de productos',
       ),
+      actions: <Widget>[
+        Stack(children: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () { },
+          ),
+          Positioned(
+              top: 0.0,
+              right: 0.0,
+              child: Container(
+                padding: const EdgeInsets.all(1.0),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                constraints: const BoxConstraints(
+                  minWidth: 16.0,
+                  minHeight: 16.0,
+                ),
+                child:  const Text(
+                  '3',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12.0,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ))
+        ]),
+      ],
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios),
         onPressed: () => Navigator.of(context).pop(),

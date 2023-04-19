@@ -37,12 +37,12 @@ class DataProducts extends StatefulWidget {
   const DataProducts({super.key});
 
   @override
-  State<DataProducts> createState() => _DataProductsState();
+  State<DataProducts> createState() => DataProductsState();
 }
 
-class _DataProductsState extends State<DataProducts> {
+class DataProductsState extends State<DataProducts> {
   List<Products> _products = [];
-  int totalCart = 0;
+  static int totalCart = 0;
   static String imagenURL =
       'https://staticuestudio.blob.core.windows.net/buhomag/2016/03/01195417/pexels-com.jpg';
 
@@ -52,11 +52,10 @@ class _DataProductsState extends State<DataProducts> {
     _fetchProducts();
   }
 
-  void _incrementCounter() {
-    setState(() {
+
+  void incrementCounter() {
       totalCart++;
-    });
-    print("TOTAL: ${totalCart}");
+  print("TOTAL: ${totalCart}");
   }
 
   Future<void> _fetchProducts() async {
@@ -113,16 +112,20 @@ class _DataProductsState extends State<DataProducts> {
                           padding: const EdgeInsets.all(10),
                           child: Text(product.description ?? 'Sin descripcion'),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            _incrementCounter();
+                        TextButton(onPressed: () {
+                            incrementCounter();
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content: Text(
                                   "El producto se agrego al carrito: ${product.title}"),
                             ));
-                          },
-                          child: const Text('Agregar al carrito'),
-                        ),
+                          }, child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const <Widget>[
+                              Icon(Icons.shopping_cart),
+                              Text('Agregar al carrito'),
+                            ],
+                          ))
+                        
                       ],
                     ),
                   ));
@@ -169,9 +172,9 @@ class _AppBarScreenState extends State<AppBarScreen> {
                   minWidth: 16.0,
                   minHeight: 16.0,
                 ),
-                child:  const Text(
-                  '3',
-                  style: TextStyle(
+                child:    Text(
+                  '${DataProductsState.totalCart}',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12.0,
                   ),
